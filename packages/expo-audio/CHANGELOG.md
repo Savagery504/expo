@@ -10,10 +10,15 @@
 
 ### 🐛 Bug fixes
 
+- [Android] Remove maxSdkVersion from MODIFY_AUDIO_SETTINGS permission ([#35541](https://github.com/expo/expo/pull/35541) by [@jakex7](https://github.com/jakex7))
+
+- [Android] Recording was not working when prepared due to wrong precondition check ([#35591](https://github.com/expo/expo/pull/35591) by [@pennersr](https://github.com/pennersr))
+
 ### 💡 Others
 
 - [Android] Started using expo modules gradle plugin. ([#34176](https://github.com/expo/expo/pull/34176) by [@lukmccall](https://github.com/lukmccall))
 - [apple] Migrate remaining `expo-module.config.json` to unified platform syntax. ([#34445](https://github.com/expo/expo/pull/34445) by [@reichhartd](https://github.com/reichhartd))
+- [iOS] Fix warnings which will become errors in Swift 6. ([#35288](https://github.com/expo/expo/pull/35288) by [@behenate](https://github.com/behenate))
 
 ## 0.3.5 - 2025-02-19
 

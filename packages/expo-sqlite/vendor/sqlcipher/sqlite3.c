@@ -11391,10 +11391,10 @@ typedef struct exsqlite3_changeset_iter exsqlite3_changeset_iter;
 ** database handle.
 **
 ** Session objects created using this function should be deleted using the
-** [sqlite3session_delete()] function before the database handle that they
+** [exsqlite3session_delete()] function before the database handle that they
 ** are attached to is itself closed. If the database handle is closed before
 ** the session object is deleted, then the results of calling any session
-** module function, including [sqlite3session_delete()] on the session object
+** module function, including [exsqlite3session_delete()] on the session object
 ** are undefined.
 **
 ** Because the session module uses the [exsqlite3_preupdate_hook()] API, it
@@ -11409,7 +11409,7 @@ typedef struct exsqlite3_changeset_iter exsqlite3_changeset_iter;
 ** attached database. It is not an error if database zDb is not attached
 ** to the database when the session object is created.
 */
-SQLITE_API int sqlite3session_create(
+SQLITE_API int exsqlite3session_create(
   sqlite3 *db,                    /* Database handle */
   const char *zDb,                /* Name of db (e.g. "main") */
   exsqlite3_session **ppSession     /* OUT: New session object */
@@ -11420,15 +11420,15 @@ SQLITE_API int sqlite3session_create(
 ** DESTRUCTOR: exsqlite3_session
 **
 ** Delete a session object previously allocated using
-** [sqlite3session_create()]. Once a session object has been deleted, the
+** [exsqlite3session_create()]. Once a session object has been deleted, the
 ** results of attempting to use pSession with any other session module
 ** function are undefined.
 **
 ** Session objects must be deleted before the database handle to which they
 ** are attached is closed. Refer to the documentation for
-** [sqlite3session_create()] for details.
+** [exsqlite3session_create()] for details.
 */
-SQLITE_API void sqlite3session_delete(exsqlite3_session *pSession);
+SQLITE_API void exsqlite3session_delete(exsqlite3_session *pSession);
 
 /*
 ** CAPI3REF: Configure a Session Object
@@ -11439,23 +11439,23 @@ SQLITE_API void sqlite3session_delete(exsqlite3_session *pSession);
 ** [SQLITE_SESSION_OBJCONFIG_SIZE] and [SQLITE_SESSION_OBJCONFIG_ROWID].
 **
 */
-SQLITE_API int sqlite3session_object_config(exsqlite3_session*, int op, void *pArg);
+SQLITE_API int exsqlite3session_object_config(exsqlite3_session*, int op, void *pArg);
 
 /*
-** CAPI3REF: Options for sqlite3session_object_config
+** CAPI3REF: Options for exsqlite3session_object_config
 **
 ** The following values may passed as the the 2nd parameter to
-** sqlite3session_object_config().
+** exsqlite3session_object_config().
 **
 ** <dt>SQLITE_SESSION_OBJCONFIG_SIZE <dd>
 **   This option is used to set, clear or query the flag that enables
-**   the [sqlite3session_changeset_size()] API. Because it imposes some
+**   the [exsqlite3session_changeset_size()] API. Because it imposes some
 **   computational overhead, this API is disabled by default. Argument
 **   pArg must point to a value of type (int). If the value is initially
-**   0, then the sqlite3session_changeset_size() API is disabled. If it
+**   0, then the exsqlite3session_changeset_size() API is disabled. If it
 **   is greater than 0, then the same API is enabled. Or, if the initial
 **   value is less than zero, no change is made. In all cases the (int)
-**   variable is set to 1 if the sqlite3session_changeset_size() API is
+**   variable is set to 1 if the exsqlite3session_changeset_size() API is
 **   enabled following the current call, or 0 otherwise.
 **
 **   It is an error (SQLITE_MISUSE) to attempt to modify this setting after
@@ -11483,7 +11483,7 @@ SQLITE_API int sqlite3session_object_config(exsqlite3_session*, int op, void *pA
 ** Enable or disable the recording of changes by a session object. When
 ** enabled, a session object records changes made to the database. When
 ** disabled - it does not. A newly created session object is enabled.
-** Refer to the documentation for [sqlite3session_changeset()] for further
+** Refer to the documentation for [exsqlite3session_changeset()] for further
 ** details regarding how enabling and disabling a session object affects
 ** the eventual changesets.
 **
@@ -11494,7 +11494,7 @@ SQLITE_API int sqlite3session_object_config(exsqlite3_session*, int op, void *pA
 ** The return value indicates the final state of the session object: 0 if
 ** the session is disabled, or 1 if it is enabled.
 */
-SQLITE_API int sqlite3session_enable(exsqlite3_session *pSession, int bEnable);
+SQLITE_API int exsqlite3session_enable(exsqlite3_session *pSession, int bEnable);
 
 /*
 ** CAPI3REF: Set Or Clear the Indirect Change Flag
@@ -11524,7 +11524,7 @@ SQLITE_API int sqlite3session_enable(exsqlite3_session *pSession, int bEnable);
 ** The return value indicates the final state of the indirect flag: 0 if
 ** it is clear, or 1 if it is set.
 */
-SQLITE_API int sqlite3session_indirect(exsqlite3_session *pSession, int bIndirect);
+SQLITE_API int exsqlite3session_indirect(exsqlite3_session *pSession, int bIndirect);
 
 /*
 ** CAPI3REF: Attach A Table To A Session Object
@@ -11533,7 +11533,7 @@ SQLITE_API int sqlite3session_indirect(exsqlite3_session *pSession, int bIndirec
 ** If argument zTab is not NULL, then it is the name of a table to attach
 ** to the session object passed as the first argument. All subsequent changes
 ** made to the table while the session object is enabled will be recorded. See
-** documentation for [sqlite3session_changeset()] for further details.
+** documentation for [exsqlite3session_changeset()] for further details.
 **
 ** Or, if argument zTab is NULL, then changes are recorded for all tables
 ** in the database. If additional tables are added to the database (by
@@ -11568,23 +11568,23 @@ SQLITE_API int sqlite3session_indirect(exsqlite3_session *pSession, int bIndirec
 ** are recorded for rows for which (idx IS NULL) is true. However, for such
 ** rows a zero-length blob (SQL value X'') is stored in the changeset or
 ** patchset instead of a NULL value. This allows such changesets to be
-** manipulated by legacy implementations of sqlite3changeset_invert(),
+** manipulated by legacy implementations of exsqlite3changeset_invert(),
 ** concat() and similar.
 **
-** The sqlite3changeset_apply() function automatically converts the
+** The exsqlite3changeset_apply() function automatically converts the
 ** zero-length blob back to a NULL value when updating the sqlite_stat1
-** table. However, if the application calls sqlite3changeset_new(),
-** sqlite3changeset_old() or sqlite3changeset_conflict on a changeset
+** table. However, if the application calls exsqlite3changeset_new(),
+** exsqlite3changeset_old() or exsqlite3changeset_conflict on a changeset
 ** iterator directly (including on a changeset iterator passed to a
 ** conflict-handler callback) then the X'' value is returned. The application
 ** must translate X'' to NULL itself if required.
 **
 ** Legacy (older than 3.22.0) versions of the sessions module cannot capture
 ** changes made to the sqlite_stat1 table. Legacy versions of the
-** sqlite3changeset_apply() function silently ignore any modifications to the
+** exsqlite3changeset_apply() function silently ignore any modifications to the
 ** sqlite_stat1 table that are part of a changeset or patchset.
 */
-SQLITE_API int sqlite3session_attach(
+SQLITE_API int exsqlite3session_attach(
   exsqlite3_session *pSession,      /* Session object */
   const char *zTab                /* Table name */
 );
@@ -11599,7 +11599,7 @@ SQLITE_API int sqlite3session_attach(
 ** If xFilter returns 0, changes are not tracked. Note that once a table is
 ** attached, xFilter will not be called again.
 */
-SQLITE_API void sqlite3session_table_filter(
+SQLITE_API void exsqlite3session_table_filter(
   exsqlite3_session *pSession,      /* Session object */
   int(*xFilter)(
     void *pCtx,                   /* Copy of third arg to _filter_table() */
@@ -11640,8 +11640,8 @@ SQLITE_API void sqlite3session_table_filter(
 ** DELETE change only.
 **
 ** The contents of a changeset may be traversed using an iterator created
-** using the [sqlite3changeset_start()] API. A changeset may be applied to
-** a database with a compatible schema using the [sqlite3changeset_apply()]
+** using the [exsqlite3changeset_start()] API. A changeset may be applied to
+** a database with a compatible schema using the [exsqlite3changeset_apply()]
 ** API.
 **
 ** Within a changeset generated by this function, all changes related to a
@@ -11702,7 +11702,7 @@ SQLITE_API void sqlite3session_table_filter(
 ** active, the resulting changeset will contain an UPDATE change instead of
 ** a DELETE and an INSERT.
 **
-** When a session object is disabled (see the [sqlite3session_enable()] API),
+** When a session object is disabled (see the [exsqlite3session_enable()] API),
 ** it does not accumulate records when rows are inserted, updated or deleted.
 ** This may appear to have some counter-intuitive effects if a single row
 ** is written to more than once during a session. For example, if a row
@@ -11713,7 +11713,7 @@ SQLITE_API void sqlite3session_table_filter(
 ** another field of the same row is updated while the session is enabled, the
 ** resulting changeset will contain an UPDATE change that updates both fields.
 */
-SQLITE_API int sqlite3session_changeset(
+SQLITE_API int exsqlite3session_changeset(
   exsqlite3_session *pSession,      /* Session object */
   int *pnChangeset,               /* OUT: Size of buffer at *ppChangeset */
   void **ppChangeset              /* OUT: Buffer containing changeset */
@@ -11725,15 +11725,15 @@ SQLITE_API int sqlite3session_changeset(
 **
 ** By default, this function always returns 0. For it to return
 ** a useful result, the exsqlite3_session object must have been configured
-** to enable this API using sqlite3session_object_config() with the
+** to enable this API using exsqlite3session_object_config() with the
 ** SQLITE_SESSION_OBJCONFIG_SIZE verb.
 **
 ** When enabled, this function returns an upper limit, in bytes, for the size
-** of the changeset that might be produced if sqlite3session_changeset() were
+** of the changeset that might be produced if exsqlite3session_changeset() were
 ** called. The final changeset size might be equal to or smaller than the
 ** size in bytes returned by this function.
 */
-SQLITE_API sqlite3_int64 sqlite3session_changeset_size(exsqlite3_session *pSession);
+SQLITE_API sqlite3_int64 exsqlite3session_changeset_size(exsqlite3_session *pSession);
 
 /*
 ** CAPI3REF: Load The Difference Between Tables Into A Session
@@ -11741,7 +11741,7 @@ SQLITE_API sqlite3_int64 sqlite3session_changeset_size(exsqlite3_session *pSessi
 **
 ** If it is not already attached to the session object passed as the first
 ** argument, this function attaches table zTbl in the same manner as the
-** [sqlite3session_attach()] function. If zTbl does not exist, or if it
+** [exsqlite3session_attach()] function. If zTbl does not exist, or if it
 ** does not have a primary key, this function is a no-op (but does not return
 ** an error).
 **
@@ -11779,7 +11779,7 @@ SQLITE_API sqlite3_int64 sqlite3session_changeset_size(exsqlite3_session *pSessi
 ** </ul>
 **
 ** To clarify, if this function is called and then a changeset constructed
-** using [sqlite3session_changeset()], then after applying that changeset to
+** using [exsqlite3session_changeset()], then after applying that changeset to
 ** database zFrom the contents of the two compatible tables would be
 ** identical.
 **
@@ -11792,7 +11792,7 @@ SQLITE_API sqlite3_int64 sqlite3session_changeset_size(exsqlite3_session *pSessi
 ** message. It is the responsibility of the caller to free this buffer using
 ** exsqlite3_free().
 */
-SQLITE_API int sqlite3session_diff(
+SQLITE_API int exsqlite3session_diff(
   exsqlite3_session *pSession,
   const char *zFromDb,
   const char *zTbl,
@@ -11814,22 +11814,22 @@ SQLITE_API int sqlite3session_diff(
 ** </ul>
 **
 ** A patchset blob may be used with up to date versions of all
-** sqlite3changeset_xxx API functions except for sqlite3changeset_invert(),
+** sqlite3changeset_xxx API functions except for exsqlite3changeset_invert(),
 ** which returns SQLITE_CORRUPT if it is passed a patchset. Similarly,
 ** attempting to use a patchset blob with old versions of the
 ** sqlite3changeset_xxx APIs also provokes an SQLITE_CORRUPT error.
 **
 ** Because the non-primary key "old.*" fields are omitted, no
 ** SQLITE_CHANGESET_DATA conflicts can be detected or reported if a patchset
-** is passed to the sqlite3changeset_apply() API. Other conflict types work
+** is passed to the exsqlite3changeset_apply() API. Other conflict types work
 ** in the same way as for changesets.
 **
 ** Changes within a patchset are ordered in the same way as for changesets
-** generated by the sqlite3session_changeset() function (i.e. all changes for
+** generated by the exsqlite3session_changeset() function (i.e. all changes for
 ** a single table are grouped together, tables appear in the order in which
 ** they were attached to the session object).
 */
-SQLITE_API int sqlite3session_patchset(
+SQLITE_API int exsqlite3session_patchset(
   exsqlite3_session *pSession,      /* Session object */
   int *pnPatchset,                /* OUT: Size of buffer at *ppPatchset */
   void **ppPatchset               /* OUT: Buffer containing patchset */
@@ -11843,14 +11843,14 @@ SQLITE_API int sqlite3session_patchset(
 ** more changes have been recorded, return zero.
 **
 ** Even if this function returns zero, it is possible that calling
-** [sqlite3session_changeset()] on the session handle may still return a
+** [exsqlite3session_changeset()] on the session handle may still return a
 ** changeset that contains no changes. This can happen when a row in
 ** an attached table is modified and then later on the original values
 ** are restored. However, if this function returns non-zero, then it is
-** guaranteed that a call to sqlite3session_changeset() will return a
+** guaranteed that a call to exsqlite3session_changeset() will return a
 ** changeset containing zero changes.
 */
-SQLITE_API int sqlite3session_isempty(exsqlite3_session *pSession);
+SQLITE_API int exsqlite3session_isempty(exsqlite3_session *pSession);
 
 /*
 ** CAPI3REF: Query for the amount of heap memory used by a session object.
@@ -11858,7 +11858,7 @@ SQLITE_API int sqlite3session_isempty(exsqlite3_session *pSession);
 ** This API returns the total amount of heap memory in bytes currently
 ** used by the session object passed as the only argument.
 */
-SQLITE_API sqlite3_int64 sqlite3session_memory_used(exsqlite3_session *pSession);
+SQLITE_API sqlite3_int64 exsqlite3session_memory_used(exsqlite3_session *pSession);
 
 /*
 ** CAPI3REF: Create An Iterator To Traverse A Changeset
@@ -11873,20 +11873,20 @@ SQLITE_API sqlite3_int64 sqlite3session_memory_used(exsqlite3_session *pSession)
 ** iterator created by this function:
 **
 ** <ul>
-**   <li> [sqlite3changeset_next()]
-**   <li> [sqlite3changeset_op()]
-**   <li> [sqlite3changeset_new()]
-**   <li> [sqlite3changeset_old()]
+**   <li> [exsqlite3changeset_next()]
+**   <li> [exsqlite3changeset_op()]
+**   <li> [exsqlite3changeset_new()]
+**   <li> [exsqlite3changeset_old()]
 ** </ul>
 **
 ** It is the responsibility of the caller to eventually destroy the iterator
-** by passing it to [sqlite3changeset_finalize()]. The buffer containing the
+** by passing it to [exsqlite3changeset_finalize()]. The buffer containing the
 ** changeset (pChangeset) must remain valid until after the iterator is
 ** destroyed.
 **
 ** Assuming the changeset blob was created by one of the
-** [sqlite3session_changeset()], [sqlite3changeset_concat()] or
-** [sqlite3changeset_invert()] functions, all changes within the changeset
+** [exsqlite3session_changeset()], [exsqlite3changeset_concat()] or
+** [exsqlite3changeset_invert()] functions, all changes within the changeset
 ** that apply to a single table are grouped together. This means that when
 ** an application iterates through a changeset using an iterator created by
 ** this function, all changes that relate to a single table are visited
@@ -11894,19 +11894,19 @@ SQLITE_API sqlite3_int64 sqlite3session_memory_used(exsqlite3_session *pSession)
 ** the applies to table X, then one for table Y, and then later on visit
 ** another change for table X.
 **
-** The behavior of sqlite3changeset_start_v2() and its streaming equivalent
+** The behavior of exsqlite3changeset_start_v2() and its streaming equivalent
 ** may be modified by passing a combination of
 ** [SQLITE_CHANGESETSTART_INVERT | supported flags] as the 4th parameter.
 **
-** Note that the sqlite3changeset_start_v2() API is still <b>experimental</b>
+** Note that the exsqlite3changeset_start_v2() API is still <b>experimental</b>
 ** and therefore subject to change.
 */
-SQLITE_API int sqlite3changeset_start(
+SQLITE_API int exsqlite3changeset_start(
   exsqlite3_changeset_iter **pp,    /* OUT: New changeset iterator handle */
   int nChangeset,                 /* Size of changeset blob in bytes */
   void *pChangeset                /* Pointer to blob containing changeset */
 );
-SQLITE_API int sqlite3changeset_start_v2(
+SQLITE_API int exsqlite3changeset_start_v2(
   exsqlite3_changeset_iter **pp,    /* OUT: New changeset iterator handle */
   int nChangeset,                 /* Size of changeset blob in bytes */
   void *pChangeset,               /* Pointer to blob containing changeset */
@@ -11914,14 +11914,14 @@ SQLITE_API int sqlite3changeset_start_v2(
 );
 
 /*
-** CAPI3REF: Flags for sqlite3changeset_start_v2
+** CAPI3REF: Flags for exsqlite3changeset_start_v2
 **
 ** The following flags may passed via the 4th parameter to
-** [sqlite3changeset_start_v2] and [sqlite3changeset_start_v2_strm]:
+** [exsqlite3changeset_start_v2] and [exsqlite3changeset_start_v2_strm]:
 **
 ** <dt>SQLITE_CHANGESETAPPLY_INVERT <dd>
 **   Invert the changeset while iterating through it. This is equivalent to
-**   inverting a changeset using sqlite3changeset_invert() before applying it.
+**   inverting a changeset using exsqlite3changeset_invert() before applying it.
 **   It is an error to specify this flag with a patchset.
 */
 #define SQLITE_CHANGESETSTART_INVERT        0x0002
@@ -11932,17 +11932,17 @@ SQLITE_API int sqlite3changeset_start_v2(
 ** METHOD: exsqlite3_changeset_iter
 **
 ** This function may only be used with iterators created by the function
-** [sqlite3changeset_start()]. If it is called on an iterator passed to
-** a conflict-handler callback by [sqlite3changeset_apply()], SQLITE_MISUSE
+** [exsqlite3changeset_start()]. If it is called on an iterator passed to
+** a conflict-handler callback by [exsqlite3changeset_apply()], SQLITE_MISUSE
 ** is returned and the call has no effect.
 **
-** Immediately after an iterator is created by sqlite3changeset_start(), it
+** Immediately after an iterator is created by exsqlite3changeset_start(), it
 ** does not point to any change in the changeset. Assuming the changeset
 ** is not empty, the first call to this function advances the iterator to
 ** point to the first change in the changeset. Each subsequent call advances
 ** the iterator to point to the next change in the changeset (if any). If
 ** no error occurs and the iterator points to a valid change after a call
-** to sqlite3changeset_next() has advanced it, SQLITE_ROW is returned.
+** to exsqlite3changeset_next() has advanced it, SQLITE_ROW is returned.
 ** Otherwise, if all changes in the changeset have already been visited,
 ** SQLITE_DONE is returned.
 **
@@ -11950,16 +11950,16 @@ SQLITE_API int sqlite3changeset_start_v2(
 ** codes include SQLITE_CORRUPT (if the changeset buffer is corrupt) or
 ** SQLITE_NOMEM.
 */
-SQLITE_API int sqlite3changeset_next(exsqlite3_changeset_iter *pIter);
+SQLITE_API int exsqlite3changeset_next(exsqlite3_changeset_iter *pIter);
 
 /*
 ** CAPI3REF: Obtain The Current Operation From A Changeset Iterator
 ** METHOD: exsqlite3_changeset_iter
 **
 ** The pIter argument passed to this function may either be an iterator
-** passed to a conflict-handler by [sqlite3changeset_apply()], or an iterator
-** created by [sqlite3changeset_start()]. In the latter case, the most recent
-** call to [sqlite3changeset_next()] must have returned [SQLITE_ROW]. If this
+** passed to a conflict-handler by [exsqlite3changeset_apply()], or an iterator
+** created by [exsqlite3changeset_start()]. In the latter case, the most recent
+** call to [exsqlite3changeset_next()] must have returned [SQLITE_ROW]. If this
 ** is not the case, this function returns [SQLITE_MISUSE].
 **
 ** Arguments pOp, pnCol and pzTab may not be NULL. Upon return, three
@@ -11972,19 +11972,19 @@ SQLITE_API int sqlite3changeset_next(exsqlite3_changeset_iter *pIter);
 **
 ** *pzTab is set to point to a nul-terminated utf-8 encoded string containing
 ** the name of the table affected by the current change. The buffer remains
-** valid until either sqlite3changeset_next() is called on the iterator
+** valid until either exsqlite3changeset_next() is called on the iterator
 ** or until the conflict-handler function returns.
 **
 ** If pbIndirect is not NULL, then *pbIndirect is set to true (1) if the change
 ** is an indirect change, or false (0) otherwise. See the documentation for
-** [sqlite3session_indirect()] for a description of direct and indirect
+** [exsqlite3session_indirect()] for a description of direct and indirect
 ** changes.
 **
 ** If no error occurs, SQLITE_OK is returned. If an error does occur, an
 ** SQLite error code is returned. The values of the output variables may not
 ** be trusted in this case.
 */
-SQLITE_API int sqlite3changeset_op(
+SQLITE_API int exsqlite3changeset_op(
   exsqlite3_changeset_iter *pIter,  /* Iterator object */
   const char **pzTab,             /* OUT: Pointer to table name */
   int *pnCol,                     /* OUT: Number of columns in table */
@@ -12018,7 +12018,7 @@ SQLITE_API int sqlite3changeset_op(
 ** SQLITE_OK is returned and the output variables populated as described
 ** above.
 */
-SQLITE_API int sqlite3changeset_pk(
+SQLITE_API int exsqlite3changeset_pk(
   exsqlite3_changeset_iter *pIter,  /* Iterator object */
   unsigned char **pabPK,          /* OUT: Array of boolean - true for PK cols */
   int *pnCol                      /* OUT: Number of entries in output array */
@@ -12029,9 +12029,9 @@ SQLITE_API int sqlite3changeset_pk(
 ** METHOD: exsqlite3_changeset_iter
 **
 ** The pIter argument passed to this function may either be an iterator
-** passed to a conflict-handler by [sqlite3changeset_apply()], or an iterator
-** created by [sqlite3changeset_start()]. In the latter case, the most recent
-** call to [sqlite3changeset_next()] must have returned SQLITE_ROW.
+** passed to a conflict-handler by [exsqlite3changeset_apply()], or an iterator
+** created by [exsqlite3changeset_start()]. In the latter case, the most recent
+** call to [exsqlite3changeset_next()] must have returned SQLITE_ROW.
 ** Furthermore, it may only be called if the type of change that the iterator
 ** currently points to is either [SQLITE_DELETE] or [SQLITE_UPDATE]. Otherwise,
 ** this function returns [SQLITE_MISUSE] and sets *ppValue to NULL.
@@ -12049,7 +12049,7 @@ SQLITE_API int sqlite3changeset_pk(
 ** If some other error occurs (e.g. an OOM condition), an SQLite error code
 ** is returned and *ppValue is set to NULL.
 */
-SQLITE_API int sqlite3changeset_old(
+SQLITE_API int exsqlite3changeset_old(
   exsqlite3_changeset_iter *pIter,  /* Changeset iterator */
   int iVal,                       /* Column number */
   exsqlite3_value **ppValue         /* OUT: Old value (or NULL pointer) */
@@ -12060,9 +12060,9 @@ SQLITE_API int sqlite3changeset_old(
 ** METHOD: exsqlite3_changeset_iter
 **
 ** The pIter argument passed to this function may either be an iterator
-** passed to a conflict-handler by [sqlite3changeset_apply()], or an iterator
-** created by [sqlite3changeset_start()]. In the latter case, the most recent
-** call to [sqlite3changeset_next()] must have returned SQLITE_ROW.
+** passed to a conflict-handler by [exsqlite3changeset_apply()], or an iterator
+** created by [exsqlite3changeset_start()]. In the latter case, the most recent
+** call to [exsqlite3changeset_next()] must have returned SQLITE_ROW.
 ** Furthermore, it may only be called if the type of change that the iterator
 ** currently points to is either [SQLITE_UPDATE] or [SQLITE_INSERT]. Otherwise,
 ** this function returns [SQLITE_MISUSE] and sets *ppValue to NULL.
@@ -12083,7 +12083,7 @@ SQLITE_API int sqlite3changeset_old(
 ** If some other error occurs (e.g. an OOM condition), an SQLite error code
 ** is returned and *ppValue is set to NULL.
 */
-SQLITE_API int sqlite3changeset_new(
+SQLITE_API int exsqlite3changeset_new(
   exsqlite3_changeset_iter *pIter,  /* Changeset iterator */
   int iVal,                       /* Column number */
   exsqlite3_value **ppValue         /* OUT: New value (or NULL pointer) */
@@ -12094,7 +12094,7 @@ SQLITE_API int sqlite3changeset_new(
 ** METHOD: exsqlite3_changeset_iter
 **
 ** This function should only be used with iterator objects passed to a
-** conflict-handler callback by [sqlite3changeset_apply()] with either
+** conflict-handler callback by [exsqlite3changeset_apply()] with either
 ** [SQLITE_CHANGESET_DATA] or [SQLITE_CHANGESET_CONFLICT]. If this function
 ** is called on any other iterator, [SQLITE_MISUSE] is returned and *ppValue
 ** is set to NULL.
@@ -12111,7 +12111,7 @@ SQLITE_API int sqlite3changeset_new(
 ** If some other error occurs (e.g. an OOM condition), an SQLite error code
 ** is returned and *ppValue is set to NULL.
 */
-SQLITE_API int sqlite3changeset_conflict(
+SQLITE_API int exsqlite3changeset_conflict(
   exsqlite3_changeset_iter *pIter,  /* Changeset iterator */
   int iVal,                       /* Column number */
   exsqlite3_value **ppValue         /* OUT: Value from conflicting row */
@@ -12128,7 +12128,7 @@ SQLITE_API int sqlite3changeset_conflict(
 **
 ** In all other cases this function returns SQLITE_MISUSE.
 */
-SQLITE_API int sqlite3changeset_fk_conflicts(
+SQLITE_API int exsqlite3changeset_fk_conflicts(
   exsqlite3_changeset_iter *pIter,  /* Changeset iterator */
   int *pnOut                      /* OUT: Number of FK violations */
 );
@@ -12139,32 +12139,32 @@ SQLITE_API int sqlite3changeset_fk_conflicts(
 ** METHOD: exsqlite3_changeset_iter
 **
 ** This function is used to finalize an iterator allocated with
-** [sqlite3changeset_start()].
+** [exsqlite3changeset_start()].
 **
 ** This function should only be called on iterators created using the
-** [sqlite3changeset_start()] function. If an application calls this
+** [exsqlite3changeset_start()] function. If an application calls this
 ** function with an iterator passed to a conflict-handler by
-** [sqlite3changeset_apply()], [SQLITE_MISUSE] is immediately returned and the
+** [exsqlite3changeset_apply()], [SQLITE_MISUSE] is immediately returned and the
 ** call has no effect.
 **
 ** If an error was encountered within a call to an sqlite3changeset_xxx()
-** function (for example an [SQLITE_CORRUPT] in [sqlite3changeset_next()] or an
-** [SQLITE_NOMEM] in [sqlite3changeset_new()]) then an error code corresponding
+** function (for example an [SQLITE_CORRUPT] in [exsqlite3changeset_next()] or an
+** [SQLITE_NOMEM] in [exsqlite3changeset_new()]) then an error code corresponding
 ** to that error is returned by this function. Otherwise, SQLITE_OK is
 ** returned. This is to allow the following pattern (pseudo-code):
 **
 ** <pre>
-**   sqlite3changeset_start();
-**   while( SQLITE_ROW==sqlite3changeset_next() ){
+**   exsqlite3changeset_start();
+**   while( SQLITE_ROW==exsqlite3changeset_next() ){
 **     // Do something with change.
 **   }
-**   rc = sqlite3changeset_finalize();
+**   rc = exsqlite3changeset_finalize();
 **   if( rc!=SQLITE_OK ){
 **     // An error has occurred
 **   }
 ** </pre>
 */
-SQLITE_API int sqlite3changeset_finalize(exsqlite3_changeset_iter *pIter);
+SQLITE_API int exsqlite3changeset_finalize(exsqlite3_changeset_iter *pIter);
 
 /*
 ** CAPI3REF: Invert A Changeset
@@ -12194,7 +12194,7 @@ SQLITE_API int sqlite3changeset_finalize(exsqlite3_changeset_iter *pIter);
 ** WARNING/TODO: This function currently assumes that the input is a valid
 ** changeset. If it is not, the results are undefined.
 */
-SQLITE_API int sqlite3changeset_invert(
+SQLITE_API int exsqlite3changeset_invert(
   int nIn, const void *pIn,       /* Input changeset */
   int *pnOut, void **ppOut        /* OUT: Inverse of input */
 );
@@ -12225,7 +12225,7 @@ SQLITE_API int sqlite3changeset_invert(
 **
 ** Refer to the exsqlite3_changegroup documentation below for details.
 */
-SQLITE_API int sqlite3changeset_concat(
+SQLITE_API int exsqlite3changeset_concat(
   int nA,                         /* Number of bytes in buffer pA */
   void *pA,                       /* Pointer to buffer containing changeset A */
   int nB,                         /* Number of bytes in buffer pB */
@@ -12238,7 +12238,7 @@ SQLITE_API int sqlite3changeset_concat(
 /*
 ** CAPI3REF: Upgrade the Schema of a Changeset/Patchset
 */
-SQLITE_API int sqlite3changeset_upgrade(
+SQLITE_API int exsqlite3changeset_upgrade(
   sqlite3 *db,
   const char *zDb,
   int nIn, const void *pIn,       /* Input changeset */
@@ -12305,7 +12305,7 @@ SQLITE_API int sqlite3changegroup_new(exsqlite3_changegroup **pp);
 ** object is left in an undefined state.
 **
 ** A changeset schema is considered compatible with the database schema in
-** the same way as for sqlite3changeset_apply(). Specifically, for each
+** the same way as for exsqlite3changeset_apply(). Specifically, for each
 ** table in the changeset, there exists a database table with:
 **
 ** <ul>
@@ -12417,8 +12417,8 @@ SQLITE_API int sqlite3changegroup_add(exsqlite3_changegroup*, int nData, void *p
 ** were themselves changesets, the output is a changeset. Or, if the
 ** inputs were patchsets, the output is also a patchset.
 **
-** As with the output of the sqlite3session_changeset() and
-** sqlite3session_patchset() functions, all changes related to a single
+** As with the output of the exsqlite3session_changeset() and
+** exsqlite3session_patchset() functions, all changes related to a single
 ** table are grouped together in the output of this function. Tables appear
 ** in the same order as for the very first changeset added to the changegroup.
 ** If the second or subsequent changesets added to the changegroup contain
@@ -12482,7 +12482,7 @@ SQLITE_API void sqlite3changegroup_delete(exsqlite3_changegroup*);
 ** For each change for which there is a compatible table, an attempt is made
 ** to modify the table contents according to the UPDATE, INSERT or DELETE
 ** change. If a change cannot be applied cleanly, the conflict handler
-** function passed as the fifth argument to sqlite3changeset_apply() may be
+** function passed as the fifth argument to exsqlite3changeset_apply() may be
 ** invoked. A description of exactly when the conflict handler is invoked for
 ** each type of change is below.
 **
@@ -12496,8 +12496,8 @@ SQLITE_API void sqlite3changegroup_delete(exsqlite3_changegroup*);
 ** if the second argument passed to the conflict handler is either
 ** SQLITE_CHANGESET_DATA or SQLITE_CHANGESET_CONFLICT. If the conflict-handler
 ** returns an illegal value, any changes already made are rolled back and
-** the call to sqlite3changeset_apply() returns SQLITE_MISUSE. Different
-** actions are taken by sqlite3changeset_apply() depending on the value
+** the call to exsqlite3changeset_apply() returns SQLITE_MISUSE. Different
+** actions are taken by exsqlite3changeset_apply() depending on the value
 ** returned by each invocation of the conflict-handler function. Refer to
 ** the documentation for the three
 ** [SQLITE_CHANGESET_OMIT|available return values] for details.
@@ -12587,7 +12587,7 @@ SQLITE_API void sqlite3changegroup_delete(exsqlite3_changegroup*);
 ** SQLite error code returned.
 **
 ** If the output parameters (ppRebase) and (pnRebase) are non-NULL and
-** the input is a changeset (not a patchset), then sqlite3changeset_apply_v2()
+** the input is a changeset (not a patchset), then exsqlite3changeset_apply_v2()
 ** may set (*ppRebase) to point to a "rebase" that may be used with the
 ** exsqlite3_rebaser APIs buffer before returning. In this case (*pnRebase)
 ** is set to the size of the buffer in bytes. It is the responsibility of the
@@ -12596,14 +12596,14 @@ SQLITE_API void sqlite3changegroup_delete(exsqlite3_changegroup*);
 ** while applying the patchset. See comments surrounding the exsqlite3_rebaser
 ** APIs for further details.
 **
-** The behavior of sqlite3changeset_apply_v2() and its streaming equivalent
+** The behavior of exsqlite3changeset_apply_v2() and its streaming equivalent
 ** may be modified by passing a combination of
 ** [SQLITE_CHANGESETAPPLY_NOSAVEPOINT | supported flags] as the 9th parameter.
 **
-** Note that the sqlite3changeset_apply_v2() API is still <b>experimental</b>
+** Note that the exsqlite3changeset_apply_v2() API is still <b>experimental</b>
 ** and therefore subject to change.
 */
-SQLITE_API int sqlite3changeset_apply(
+SQLITE_API int exsqlite3changeset_apply(
   sqlite3 *db,                    /* Apply change to "main" db of this handle */
   int nChangeset,                 /* Size of changeset in bytes */
   void *pChangeset,               /* Changeset blob */
@@ -12618,7 +12618,7 @@ SQLITE_API int sqlite3changeset_apply(
   ),
   void *pCtx                      /* First argument passed to xConflict */
 );
-SQLITE_API int sqlite3changeset_apply_v2(
+SQLITE_API int exsqlite3changeset_apply_v2(
   sqlite3 *db,                    /* Apply change to "main" db of this handle */
   int nChangeset,                 /* Size of changeset in bytes */
   void *pChangeset,               /* Changeset blob */
@@ -12637,10 +12637,10 @@ SQLITE_API int sqlite3changeset_apply_v2(
 );
 
 /*
-** CAPI3REF: Flags for sqlite3changeset_apply_v2
+** CAPI3REF: Flags for exsqlite3changeset_apply_v2
 **
 ** The following flags may passed via the 9th parameter to
-** [sqlite3changeset_apply_v2] and [sqlite3changeset_apply_v2_strm]:
+** [exsqlite3changeset_apply_v2] and [exsqlite3changeset_apply_v2_strm]:
 **
 ** <dl>
 ** <dt>SQLITE_CHANGESETAPPLY_NOSAVEPOINT <dd>
@@ -12654,7 +12654,7 @@ SQLITE_API int sqlite3changeset_apply_v2(
 **
 ** <dt>SQLITE_CHANGESETAPPLY_INVERT <dd>
 **   Invert the changeset before applying it. This is equivalent to inverting
-**   a changeset using sqlite3changeset_invert() before applying it. It is
+**   a changeset using exsqlite3changeset_invert() before applying it. It is
 **   an error to specify this flag with a patchset.
 **
 ** <dt>SQLITE_CHANGESETAPPLY_IGNORENOOP <dd>
@@ -12703,7 +12703,7 @@ SQLITE_API int sqlite3changeset_apply_v2(
 **   required PRIMARY KEY fields is not present in the database.
 **
 **   There is no conflicting row in this case. The results of invoking the
-**   sqlite3changeset_conflict() API are undefined.
+**   exsqlite3changeset_conflict() API are undefined.
 **
 ** <dt>SQLITE_CHANGESET_CONFLICT<dd>
 **   CHANGESET_CONFLICT is passed as the second argument to the conflict
@@ -12724,7 +12724,7 @@ SQLITE_API int sqlite3changeset_apply_v2(
 **
 **   No current or conflicting row information is provided. The only function
 **   it is possible to call on the supplied exsqlite3_changeset_iter handle
-**   is sqlite3changeset_fk_conflicts().
+**   is exsqlite3changeset_fk_conflicts().
 **
 ** <dt>SQLITE_CHANGESET_CONSTRAINT<dd>
 **   If any other constraint violation occurs while applying a change (i.e.
@@ -12732,7 +12732,7 @@ SQLITE_API int sqlite3changeset_apply_v2(
 **   invoked with CHANGESET_CONSTRAINT as the second argument.
 **
 **   There is no conflicting row in this case. The results of invoking the
-**   sqlite3changeset_conflict() API are undefined.
+**   exsqlite3changeset_conflict() API are undefined.
 **
 ** </dl>
 */
@@ -12757,7 +12757,7 @@ SQLITE_API int sqlite3changeset_apply_v2(
 **   This value may only be returned if the second argument to the conflict
 **   handler was SQLITE_CHANGESET_DATA or SQLITE_CHANGESET_CONFLICT. If this
 **   is not the case, any changes applied so far are rolled back and the
-**   call to sqlite3changeset_apply() returns SQLITE_MISUSE.
+**   call to exsqlite3changeset_apply() returns SQLITE_MISUSE.
 **
 **   If CHANGESET_REPLACE is returned by an SQLITE_CHANGESET_DATA conflict
 **   handler, then the conflicting row is either updated or deleted, depending
@@ -12770,7 +12770,7 @@ SQLITE_API int sqlite3changeset_apply_v2(
 **
 ** <dt>SQLITE_CHANGESET_ABORT<dd>
 **   If this value is returned, any changes applied so far are rolled back
-**   and the call to sqlite3changeset_apply() returns SQLITE_ABORT.
+**   and the call to exsqlite3changeset_apply() returns SQLITE_ABORT.
 ** </dl>
 */
 #define SQLITE_CHANGESET_OMIT       0
@@ -12858,18 +12858,18 @@ SQLITE_API int sqlite3changeset_apply_v2(
 ** OMIT.
 **
 ** In order to rebase a local changeset, the remote changeset must first
-** be applied to the local database using sqlite3changeset_apply_v2() and
+** be applied to the local database using exsqlite3changeset_apply_v2() and
 ** the buffer of rebase information captured. Then:
 **
 ** <ol>
 **   <li> An exsqlite3_rebaser object is created by calling
 **        sqlite3rebaser_create().
 **   <li> The new object is configured with the rebase buffer obtained from
-**        sqlite3changeset_apply_v2() by calling sqlite3rebaser_configure().
+**        exsqlite3changeset_apply_v2() by calling sqlite3rebaser_configure().
 **        If the local changeset is to be rebased against multiple remote
 **        changesets, then sqlite3rebaser_configure() should be called
 **        multiple times, in the same order that the multiple
-**        sqlite3changeset_apply_v2() calls were made.
+**        exsqlite3changeset_apply_v2() calls were made.
 **   <li> Each local changeset is rebased by calling sqlite3rebaser_rebase().
 **   <li> The exsqlite3_rebaser object is deleted by calling
 **        sqlite3rebaser_delete().
@@ -12895,7 +12895,7 @@ SQLITE_API int sqlite3rebaser_create(exsqlite3_rebaser **ppNew);
 ** Configure the changeset rebaser object to rebase changesets according
 ** to the conflict resolutions described by buffer pRebase (size nRebase
 ** bytes), which must have been obtained from a previous call to
-** sqlite3changeset_apply_v2().
+** exsqlite3changeset_apply_v2().
 */
 SQLITE_API int sqlite3rebaser_configure(
   exsqlite3_rebaser*,
@@ -12940,13 +12940,13 @@ SQLITE_API void sqlite3rebaser_delete(exsqlite3_rebaser *p);
 **
 ** <table border=1 style="margin-left:8ex;margin-right:8ex">
 **   <tr><th>Streaming function<th>Non-streaming equivalent</th>
-**   <tr><td>sqlite3changeset_apply_strm<td>[sqlite3changeset_apply]
-**   <tr><td>sqlite3changeset_apply_strm_v2<td>[sqlite3changeset_apply_v2]
-**   <tr><td>sqlite3changeset_concat_strm<td>[sqlite3changeset_concat]
-**   <tr><td>sqlite3changeset_invert_strm<td>[sqlite3changeset_invert]
-**   <tr><td>sqlite3changeset_start_strm<td>[sqlite3changeset_start]
-**   <tr><td>sqlite3session_changeset_strm<td>[sqlite3session_changeset]
-**   <tr><td>sqlite3session_patchset_strm<td>[sqlite3session_patchset]
+**   <tr><td>exsqlite3changeset_apply_strm<td>[exsqlite3changeset_apply]
+**   <tr><td>sqlite3changeset_apply_strm_v2<td>[exsqlite3changeset_apply_v2]
+**   <tr><td>exsqlite3changeset_concat_strm<td>[exsqlite3changeset_concat]
+**   <tr><td>exsqlite3changeset_invert_strm<td>[exsqlite3changeset_invert]
+**   <tr><td>exsqlite3changeset_start_strm<td>[exsqlite3changeset_start]
+**   <tr><td>exsqlite3session_changeset_strm<td>[exsqlite3session_changeset]
+**   <tr><td>exsqlite3session_patchset_strm<td>[exsqlite3session_patchset]
 ** </table>
 **
 ** Non-streaming functions that accept changesets (or patchsets) as input
@@ -12985,7 +12985,7 @@ SQLITE_API void sqlite3rebaser_delete(exsqlite3_rebaser *p);
 ** an error, all processing is abandoned and the streaming API function
 ** returns a copy of the error code to the caller.
 **
-** In the case of sqlite3changeset_start_strm(), the xInput callback may be
+** In the case of exsqlite3changeset_start_strm(), the xInput callback may be
 ** invoked by the sessions module at any point during the lifetime of the
 ** iterator. If such an xInput callback returns an error, the iterator enters
 ** an error state, whereby all subsequent calls to iterator functions
@@ -13022,7 +13022,7 @@ SQLITE_API void sqlite3rebaser_delete(exsqlite3_rebaser *p);
 ** parameter set to a value less than or equal to zero. Other than this,
 ** no guarantees are made as to the size of the chunks of data returned.
 */
-SQLITE_API int sqlite3changeset_apply_strm(
+SQLITE_API int exsqlite3changeset_apply_strm(
   sqlite3 *db,                    /* Apply change to "main" db of this handle */
   int (*xInput)(void *pIn, void *pData, int *pnData), /* Input function */
   void *pIn,                                          /* First arg for xInput */
@@ -13037,7 +13037,7 @@ SQLITE_API int sqlite3changeset_apply_strm(
   ),
   void *pCtx                      /* First argument passed to xConflict */
 );
-SQLITE_API int sqlite3changeset_apply_v2_strm(
+SQLITE_API int exsqlite3changeset_apply_v2_strm(
   sqlite3 *db,                    /* Apply change to "main" db of this handle */
   int (*xInput)(void *pIn, void *pData, int *pnData), /* Input function */
   void *pIn,                                          /* First arg for xInput */
@@ -13054,7 +13054,7 @@ SQLITE_API int sqlite3changeset_apply_v2_strm(
   void **ppRebase, int *pnRebase,
   int flags
 );
-SQLITE_API int sqlite3changeset_concat_strm(
+SQLITE_API int exsqlite3changeset_concat_strm(
   int (*xInputA)(void *pIn, void *pData, int *pnData),
   void *pInA,
   int (*xInputB)(void *pIn, void *pData, int *pnData),
@@ -13062,29 +13062,29 @@ SQLITE_API int sqlite3changeset_concat_strm(
   int (*xOutput)(void *pOut, const void *pData, int nData),
   void *pOut
 );
-SQLITE_API int sqlite3changeset_invert_strm(
+SQLITE_API int exsqlite3changeset_invert_strm(
   int (*xInput)(void *pIn, void *pData, int *pnData),
   void *pIn,
   int (*xOutput)(void *pOut, const void *pData, int nData),
   void *pOut
 );
-SQLITE_API int sqlite3changeset_start_strm(
+SQLITE_API int exsqlite3changeset_start_strm(
   exsqlite3_changeset_iter **pp,
   int (*xInput)(void *pIn, void *pData, int *pnData),
   void *pIn
 );
-SQLITE_API int sqlite3changeset_start_v2_strm(
+SQLITE_API int exsqlite3changeset_start_v2_strm(
   exsqlite3_changeset_iter **pp,
   int (*xInput)(void *pIn, void *pData, int *pnData),
   void *pIn,
   int flags
 );
-SQLITE_API int sqlite3session_changeset_strm(
+SQLITE_API int exsqlite3session_changeset_strm(
   exsqlite3_session *pSession,
   int (*xOutput)(void *pOut, const void *pData, int nData),
   void *pOut
 );
-SQLITE_API int sqlite3session_patchset_strm(
+SQLITE_API int exsqlite3session_patchset_strm(
   exsqlite3_session *pSession,
   int (*xOutput)(void *pOut, const void *pData, int nData),
   void *pOut
@@ -13108,16 +13108,16 @@ SQLITE_API int sqlite3rebaser_rebase_strm(
 /*
 ** CAPI3REF: Configure global parameters
 **
-** The sqlite3session_config() interface is used to make global configuration
+** The exsqlite3session_config() interface is used to make global configuration
 ** changes to the sessions module in order to tune it to the specific needs
 ** of the application.
 **
-** The sqlite3session_config() interface is not threadsafe. If it is invoked
+** The exsqlite3session_config() interface is not threadsafe. If it is invoked
 ** while any other thread is inside any other sessions method then the
 ** results are undefined. Furthermore, if it is invoked after any sessions
 ** related objects have been created, the results are also undefined.
 **
-** The first argument to the sqlite3session_config() function must be one
+** The first argument to the exsqlite3session_config() function must be one
 ** of the SQLITE_SESSION_CONFIG_XXX constants defined below. The
 ** interpretation of the (void*) value passed as the second parameter and
 ** the effect of calling this function depends on the value of the first
@@ -13138,10 +13138,10 @@ SQLITE_API int sqlite3rebaser_rebase_strm(
 ** This function returns SQLITE_OK if successful, or an SQLite error code
 ** otherwise.
 */
-SQLITE_API int sqlite3session_config(int op, void *pArg);
+SQLITE_API int exsqlite3session_config(int op, void *pArg);
 
 /*
-** CAPI3REF: Values for sqlite3session_config().
+** CAPI3REF: Values for exsqlite3session_config().
 */
 #define SQLITE_SESSION_CONFIG_STRMSIZE 1
 
@@ -228844,8 +228844,8 @@ struct SessionBuffer {
 /*
 ** An object of this type is used internally as an abstraction for
 ** input data. Input data may be supplied either as a single large buffer
-** (e.g. sqlite3changeset_start()) or using a stream function (e.g.
-**  sqlite3changeset_start_strm()).
+** (e.g. exsqlite3changeset_start()) or using a stream function (e.g.
+**  exsqlite3changeset_start_strm()).
 */
 struct SessionInput {
   int bNoDiscard;                 /* If true, do not discard in InputBuffer() */
@@ -229043,7 +229043,7 @@ struct SessionTable {
 **
 ** REBASE BLOB FORMAT:
 **
-** A rebase blob may be output by sqlite3changeset_apply_v2() and its
+** A rebase blob may be output by exsqlite3changeset_apply_v2() and its
 ** streaming equivalent for use with the exsqlite3_rebaser APIs to rebase
 ** existing changesets. A rebase blob contains one entry for each conflict
 ** resolved using either the OMIT or REPLACE strategies within the apply_v2()
@@ -230632,7 +230632,7 @@ static int sessionFindTable(
     if( pSession->xTableFilter==0
      || pSession->xTableFilter(pSession->pFilterCtx, zName)
     ){
-      rc = sqlite3session_attach(pSession, zName);
+      rc = exsqlite3session_attach(pSession, zName);
       if( rc==SQLITE_OK ){
         pRet = pSession->pTable;
         while( ALWAYS(pRet) && pRet->pNext ){
@@ -230936,7 +230936,7 @@ static int sessionDiffFindModified(
   return rc;
 }
 
-SQLITE_API int sqlite3session_diff(
+SQLITE_API int exsqlite3session_diff(
   exsqlite3_session *pSession,
   const char *zFrom,
   const char *zTbl,
@@ -231034,7 +231034,7 @@ SQLITE_API int sqlite3session_diff(
 ** Create a session object. This session object will record changes to
 ** database zDb attached to connection db.
 */
-SQLITE_API int sqlite3session_create(
+SQLITE_API int exsqlite3session_create(
   sqlite3 *db,                    /* Database handle */
   const char *zDb,                /* Name of db (e.g. "main") */
   exsqlite3_session **ppSession     /* OUT: New session object */
@@ -231095,9 +231095,9 @@ static void sessionDeleteTable(exsqlite3_session *pSession, SessionTable *pList)
 }
 
 /*
-** Delete a session object previously allocated using sqlite3session_create().
+** Delete a session object previously allocated using exsqlite3session_create().
 */
-SQLITE_API void sqlite3session_delete(exsqlite3_session *pSession){
+SQLITE_API void exsqlite3session_delete(exsqlite3_session *pSession){
   sqlite3 *db = pSession->db;
   exsqlite3_session *pHead;
   exsqlite3_session **pp;
@@ -231127,7 +231127,7 @@ SQLITE_API void sqlite3session_delete(exsqlite3_session *pSession){
 /*
 ** Set a table filter on a Session Object.
 */
-SQLITE_API void sqlite3session_table_filter(
+SQLITE_API void exsqlite3session_table_filter(
   exsqlite3_session *pSession,
   int(*xFilter)(void*, const char*),
   void *pCtx                      /* First argument passed to xFilter */
@@ -231145,7 +231145,7 @@ SQLITE_API void sqlite3session_table_filter(
 ** not matter if the PRIMARY KEY is an "INTEGER PRIMARY KEY" (rowid alias)
 ** or not.
 */
-SQLITE_API int sqlite3session_attach(
+SQLITE_API int exsqlite3session_attach(
   exsqlite3_session *pSession,      /* Session object */
   const char *zName               /* Table name */
 ){
@@ -231860,7 +231860,7 @@ static int sessionGenerateChangeset(
 ** It is the responsibility of the caller to eventually free the buffer
 ** using exsqlite3_free().
 */
-SQLITE_API int sqlite3session_changeset(
+SQLITE_API int exsqlite3session_changeset(
   exsqlite3_session *pSession,      /* Session object */
   int *pnChangeset,               /* OUT: Size of buffer at *ppChangeset */
   void **ppChangeset              /* OUT: Buffer containing changeset */
@@ -231876,9 +231876,9 @@ SQLITE_API int sqlite3session_changeset(
 }
 
 /*
-** Streaming version of sqlite3session_changeset().
+** Streaming version of exsqlite3session_changeset().
 */
-SQLITE_API int sqlite3session_changeset_strm(
+SQLITE_API int exsqlite3session_changeset_strm(
   exsqlite3_session *pSession,
   int (*xOutput)(void *pOut, const void *pData, int nData),
   void *pOut
@@ -231888,9 +231888,9 @@ SQLITE_API int sqlite3session_changeset_strm(
 }
 
 /*
-** Streaming version of sqlite3session_patchset().
+** Streaming version of exsqlite3session_patchset().
 */
-SQLITE_API int sqlite3session_patchset_strm(
+SQLITE_API int exsqlite3session_patchset_strm(
   exsqlite3_session *pSession,
   int (*xOutput)(void *pOut, const void *pData, int nData),
   void *pOut
@@ -231906,7 +231906,7 @@ SQLITE_API int sqlite3session_patchset_strm(
 ** It is the responsibility of the caller to eventually free the buffer
 ** using exsqlite3_free().
 */
-SQLITE_API int sqlite3session_patchset(
+SQLITE_API int exsqlite3session_patchset(
   exsqlite3_session *pSession,      /* Session object */
   int *pnPatchset,                /* OUT: Size of buffer at *ppChangeset */
   void **ppPatchset               /* OUT: Buffer containing changeset */
@@ -231918,7 +231918,7 @@ SQLITE_API int sqlite3session_patchset(
 /*
 ** Enable or disable the session object passed as the first argument.
 */
-SQLITE_API int sqlite3session_enable(exsqlite3_session *pSession, int bEnable){
+SQLITE_API int exsqlite3session_enable(exsqlite3_session *pSession, int bEnable){
   int ret;
   exsqlite3_mutex_enter(exsqlite3_db_mutex(pSession->db));
   if( bEnable>=0 ){
@@ -231932,7 +231932,7 @@ SQLITE_API int sqlite3session_enable(exsqlite3_session *pSession, int bEnable){
 /*
 ** Enable or disable the session object passed as the first argument.
 */
-SQLITE_API int sqlite3session_indirect(exsqlite3_session *pSession, int bIndirect){
+SQLITE_API int exsqlite3session_indirect(exsqlite3_session *pSession, int bIndirect){
   int ret;
   exsqlite3_mutex_enter(exsqlite3_db_mutex(pSession->db));
   if( bIndirect>=0 ){
@@ -231947,7 +231947,7 @@ SQLITE_API int sqlite3session_indirect(exsqlite3_session *pSession, int bIndirec
 ** Return true if there have been no changes to monitored tables recorded
 ** by the session object passed as the only argument.
 */
-SQLITE_API int sqlite3session_isempty(exsqlite3_session *pSession){
+SQLITE_API int exsqlite3session_isempty(exsqlite3_session *pSession){
   int ret = 0;
   SessionTable *pTab;
 
@@ -231963,14 +231963,14 @@ SQLITE_API int sqlite3session_isempty(exsqlite3_session *pSession){
 /*
 ** Return the amount of heap memory in use.
 */
-SQLITE_API sqlite3_int64 sqlite3session_memory_used(exsqlite3_session *pSession){
+SQLITE_API sqlite3_int64 exsqlite3session_memory_used(exsqlite3_session *pSession){
   return pSession->nMalloc;
 }
 
 /*
 ** Configure the session object passed as the first argument.
 */
-SQLITE_API int sqlite3session_object_config(exsqlite3_session *pSession, int op, void *pArg){
+SQLITE_API int exsqlite3session_object_config(exsqlite3_session *pSession, int op, void *pArg){
   int rc = SQLITE_OK;
   switch( op ){
     case SQLITE_SESSION_OBJCONFIG_SIZE: {
@@ -232007,14 +232007,14 @@ SQLITE_API int sqlite3session_object_config(exsqlite3_session *pSession, int op,
 }
 
 /*
-** Return the maximum size of sqlite3session_changeset() output.
+** Return the maximum size of exsqlite3session_changeset() output.
 */
-SQLITE_API sqlite3_int64 sqlite3session_changeset_size(exsqlite3_session *pSession){
+SQLITE_API sqlite3_int64 exsqlite3session_changeset_size(exsqlite3_session *pSession){
   return pSession->nMaxChangesetSize;
 }
 
 /*
-** Do the work for either sqlite3changeset_start() or start_strm().
+** Do the work for either exsqlite3changeset_start() or start_strm().
 */
 static int sessionChangesetStart(
   exsqlite3_changeset_iter **pp,    /* OUT: Changeset iterator handle */
@@ -232054,14 +232054,14 @@ static int sessionChangesetStart(
 /*
 ** Create an iterator used to iterate through the contents of a changeset.
 */
-SQLITE_API int sqlite3changeset_start(
+SQLITE_API int exsqlite3changeset_start(
   exsqlite3_changeset_iter **pp,    /* OUT: Changeset iterator handle */
   int nChangeset,                 /* Size of buffer pChangeset in bytes */
   void *pChangeset                /* Pointer to buffer containing changeset */
 ){
   return sessionChangesetStart(pp, 0, 0, nChangeset, pChangeset, 0, 0);
 }
-SQLITE_API int sqlite3changeset_start_v2(
+SQLITE_API int exsqlite3changeset_start_v2(
   exsqlite3_changeset_iter **pp,    /* OUT: Changeset iterator handle */
   int nChangeset,                 /* Size of buffer pChangeset in bytes */
   void *pChangeset,               /* Pointer to buffer containing changeset */
@@ -232072,16 +232072,16 @@ SQLITE_API int sqlite3changeset_start_v2(
 }
 
 /*
-** Streaming version of sqlite3changeset_start().
+** Streaming version of exsqlite3changeset_start().
 */
-SQLITE_API int sqlite3changeset_start_strm(
+SQLITE_API int exsqlite3changeset_start_strm(
   exsqlite3_changeset_iter **pp,    /* OUT: Changeset iterator handle */
   int (*xInput)(void *pIn, void *pData, int *pnData),
   void *pIn
 ){
   return sessionChangesetStart(pp, xInput, pIn, 0, 0, 0, 0);
 }
-SQLITE_API int sqlite3changeset_start_v2_strm(
+SQLITE_API int exsqlite3changeset_start_v2_strm(
   exsqlite3_changeset_iter **pp,    /* OUT: Changeset iterator handle */
   int (*xInput)(void *pIn, void *pData, int *pnData),
   void *pIn,
@@ -232563,8 +232563,8 @@ static int sessionChangesetNextOne(
 ** Advance the changeset iterator to the next change.
 **
 ** If both paRec and pnRec are NULL, then this function works like the public
-** API sqlite3changeset_next(). If SQLITE_ROW is returned, then the
-** sqlite3changeset_new() and old() APIs may be used to query for values.
+** API exsqlite3changeset_next(). If SQLITE_ROW is returned, then the
+** exsqlite3changeset_new() and old() APIs may be used to query for values.
 **
 ** Otherwise, if paRec and pnRec are not NULL, then a pointer to the change
 ** record is written to *paRec before returning and the number of bytes in
@@ -232591,14 +232591,14 @@ static int sessionChangesetNext(
 }
 
 /*
-** Advance an iterator created by sqlite3changeset_start() to the next
+** Advance an iterator created by exsqlite3changeset_start() to the next
 ** change in the changeset. This function may return SQLITE_ROW, SQLITE_DONE
 ** or SQLITE_CORRUPT.
 **
 ** This function may not be called on iterators passed to a conflict handler
 ** callback by changeset_apply().
 */
-SQLITE_API int sqlite3changeset_next(exsqlite3_changeset_iter *p){
+SQLITE_API int exsqlite3changeset_next(exsqlite3_changeset_iter *p){
   return sessionChangesetNext(p, 0, 0, 0);
 }
 
@@ -232607,7 +232607,7 @@ SQLITE_API int sqlite3changeset_next(exsqlite3_changeset_iter *p){
 ** from a changeset iterator. It may only be called after changeset_next()
 ** has returned SQLITE_ROW.
 */
-SQLITE_API int sqlite3changeset_op(
+SQLITE_API int exsqlite3changeset_op(
   exsqlite3_changeset_iter *pIter,  /* Iterator handle */
   const char **pzTab,             /* OUT: Pointer to table name */
   int *pnCol,                     /* OUT: Number of columns in table */
@@ -232627,7 +232627,7 @@ SQLITE_API int sqlite3changeset_op(
 ** to. This function may only be called after changeset_next() returns
 ** SQLITE_ROW.
 */
-SQLITE_API int sqlite3changeset_pk(
+SQLITE_API int exsqlite3changeset_pk(
   exsqlite3_changeset_iter *pIter,  /* Iterator object */
   unsigned char **pabPK,          /* OUT: Array of boolean - true for PK cols */
   int *pnCol                      /* OUT: Number of entries in output array */
@@ -232639,7 +232639,7 @@ SQLITE_API int sqlite3changeset_pk(
 
 /*
 ** This function may only be called while the iterator is pointing to an
-** SQLITE_UPDATE or SQLITE_DELETE change (see sqlite3changeset_op()).
+** SQLITE_UPDATE or SQLITE_DELETE change (see exsqlite3changeset_op()).
 ** Otherwise, SQLITE_MISUSE is returned.
 **
 ** It sets *ppValue to point to an exsqlite3_value structure containing the
@@ -232650,7 +232650,7 @@ SQLITE_API int sqlite3changeset_pk(
 ** If value iVal is out-of-range, SQLITE_RANGE is returned and *ppValue is
 ** not modified. Otherwise, SQLITE_OK.
 */
-SQLITE_API int sqlite3changeset_old(
+SQLITE_API int exsqlite3changeset_old(
   exsqlite3_changeset_iter *pIter,  /* Changeset iterator */
   int iVal,                       /* Index of old.* value to retrieve */
   exsqlite3_value **ppValue         /* OUT: Old value (or NULL pointer) */
@@ -232667,7 +232667,7 @@ SQLITE_API int sqlite3changeset_old(
 
 /*
 ** This function may only be called while the iterator is pointing to an
-** SQLITE_UPDATE or SQLITE_INSERT change (see sqlite3changeset_op()).
+** SQLITE_UPDATE or SQLITE_INSERT change (see exsqlite3changeset_op()).
 ** Otherwise, SQLITE_MISUSE is returned.
 **
 ** It sets *ppValue to point to an exsqlite3_value structure containing the
@@ -232678,7 +232678,7 @@ SQLITE_API int sqlite3changeset_old(
 ** If value iVal is out-of-range, SQLITE_RANGE is returned and *ppValue is
 ** not modified. Otherwise, SQLITE_OK.
 */
-SQLITE_API int sqlite3changeset_new(
+SQLITE_API int exsqlite3changeset_new(
   exsqlite3_changeset_iter *pIter,  /* Changeset iterator */
   int iVal,                       /* Index of new.* value to retrieve */
   exsqlite3_value **ppValue         /* OUT: New value (or NULL pointer) */
@@ -232695,7 +232695,7 @@ SQLITE_API int sqlite3changeset_new(
 
 /*
 ** The following two macros are used internally. They are similar to the
-** sqlite3changeset_new() and sqlite3changeset_old() functions, except that
+** exsqlite3changeset_new() and exsqlite3changeset_old() functions, except that
 ** they omit all error checking and return a pointer to the requested value.
 */
 #define sessionChangesetNew(pIter, iVal) (pIter)->apValue[(pIter)->nCol+(iVal)]
@@ -232712,7 +232712,7 @@ SQLITE_API int sqlite3changeset_new(
 ** If value iVal is out-of-range or some other error occurs, an SQLite error
 ** code is returned. Otherwise, SQLITE_OK.
 */
-SQLITE_API int sqlite3changeset_conflict(
+SQLITE_API int exsqlite3changeset_conflict(
   exsqlite3_changeset_iter *pIter,  /* Changeset iterator */
   int iVal,                       /* Index of conflict record value to fetch */
   exsqlite3_value **ppValue         /* OUT: Value from conflicting row */
@@ -232735,7 +232735,7 @@ SQLITE_API int sqlite3changeset_conflict(
 **
 ** In all other cases this function returns SQLITE_MISUSE.
 */
-SQLITE_API int sqlite3changeset_fk_conflicts(
+SQLITE_API int exsqlite3changeset_fk_conflicts(
   exsqlite3_changeset_iter *pIter,  /* Changeset iterator */
   int *pnOut                      /* OUT: Number of FK violations */
 ){
@@ -232748,12 +232748,12 @@ SQLITE_API int sqlite3changeset_fk_conflicts(
 
 
 /*
-** Finalize an iterator allocated with sqlite3changeset_start().
+** Finalize an iterator allocated with exsqlite3changeset_start().
 **
 ** This function may not be called on iterators passed to a conflict handler
 ** callback by changeset_apply().
 */
-SQLITE_API int sqlite3changeset_finalize(exsqlite3_changeset_iter *p){
+SQLITE_API int exsqlite3changeset_finalize(exsqlite3_changeset_iter *p){
   int rc = SQLITE_OK;
   if( p ){
     int i;                        /* Used to iterate through p->apValue[] */
@@ -232927,7 +232927,7 @@ static int sessionChangesetInvert(
 /*
 ** Invert a changeset object.
 */
-SQLITE_API int sqlite3changeset_invert(
+SQLITE_API int exsqlite3changeset_invert(
   int nChangeset,                 /* Number of bytes in input */
   const void *pChangeset,         /* Input changeset */
   int *pnInverted,                /* OUT: Number of bytes in output changeset */
@@ -232944,9 +232944,9 @@ SQLITE_API int sqlite3changeset_invert(
 }
 
 /*
-** Streaming version of sqlite3changeset_invert().
+** Streaming version of exsqlite3changeset_invert().
 */
-SQLITE_API int sqlite3changeset_invert_strm(
+SQLITE_API int exsqlite3changeset_invert_strm(
   int (*xInput)(void *pIn, void *pData, int *pnData),
   void *pIn,
   int (*xOutput)(void *pOut, const void *pData, int nData),
@@ -233364,11 +233364,11 @@ static int sessionBindRow(
   int i;
   int rc = SQLITE_OK;
 
-  /* Neither sqlite3changeset_old or sqlite3changeset_new can fail if the
+  /* Neither exsqlite3changeset_old or exsqlite3changeset_new can fail if the
   ** argument iterator points to a suitable entry. Make sure that xValue
   ** is one of these to guarantee that it is safe to ignore the return
   ** in the code below. */
-  assert( xValue==sqlite3changeset_old || xValue==sqlite3changeset_new );
+  assert( xValue==exsqlite3changeset_old || xValue==exsqlite3changeset_new );
 
   for(i=0; rc==SQLITE_OK && i<nCol; i++){
     if( !abPK || abPK[i] ){
@@ -233414,9 +233414,9 @@ static int sessionSeekToRow(
   const char *zDummy;             /* Unused */
 
   exsqlite3_clear_bindings(pSelect);
-  sqlite3changeset_op(pIter, &zDummy, &nCol, &op, 0);
+  exsqlite3changeset_op(pIter, &zDummy, &nCol, &op, 0);
   rc = sessionBindRow(pIter,
-      op==SQLITE_INSERT ? sqlite3changeset_new : sqlite3changeset_old,
+      op==SQLITE_INSERT ? exsqlite3changeset_new : exsqlite3changeset_old,
       nCol, p->abPK, pSelect
   );
 
@@ -233425,7 +233425,7 @@ static int sessionSeekToRow(
     for(ii=0; rc==SQLITE_OK && ii<nCol; ii++){
       if( p->abPK[ii]==0 ){
         exsqlite3_value *pVal = 0;
-        sqlite3changeset_new(pIter, ii, &pVal);
+        exsqlite3changeset_new(pIter, ii, &pVal);
         exsqlite3_bind_int(pSelect, ii+1+nCol, (pVal==0));
         if( pVal ) rc = sessionBindValue(pSelect, ii+1, pVal);
       }
@@ -233441,7 +233441,7 @@ static int sessionSeekToRow(
 }
 
 /*
-** This function is called from within sqlite3changeset_apply_v2() when
+** This function is called from within exsqlite3changeset_apply_v2() when
 ** a conflict is encountered and resolved using conflict resolution
 ** mode eType (either SQLITE_CHANGESET_OMIT or SQLITE_CHANGESET_REPLACE)..
 ** It adds a conflict resolution record to the buffer in
@@ -233479,9 +233479,9 @@ static int sessionRebaseAdd(
     for(i=0; i<p->nCol; i++){
       exsqlite3_value *pVal = 0;
       if( eOp==SQLITE_DELETE || (eOp==SQLITE_UPDATE && p->abPK[i]) ){
-        sqlite3changeset_old(pIter, i, &pVal);
+        exsqlite3changeset_old(pIter, i, &pVal);
       }else{
-        sqlite3changeset_new(pIter, i, &pVal);
+        exsqlite3changeset_new(pIter, i, &pVal);
       }
       sessionAppendValue(&p->rebase, pVal, &rc);
     }
@@ -233538,7 +233538,7 @@ static int sessionConflictHandler(
   int op;
   const char *zDummy;
 
-  sqlite3changeset_op(pIter, &zDummy, &nCol, &op, 0);
+  exsqlite3changeset_op(pIter, &zDummy, &nCol, &op, 0);
 
   assert( eType==SQLITE_CHANGESET_CONFLICT || eType==SQLITE_CHANGESET_DATA );
   assert( SQLITE_CHANGESET_CONFLICT+1==SQLITE_CHANGESET_CONSTRAINT );
@@ -233645,7 +233645,7 @@ static int sessionApplyOneOp(
   assert( p->azCol && p->abPK );
   assert( !pbReplace || *pbReplace==0 );
 
-  sqlite3changeset_op(pIter, &zDummy, &nCol, &op, 0);
+  exsqlite3changeset_op(pIter, &zDummy, &nCol, &op, 0);
 
   if( op==SQLITE_DELETE ){
 
@@ -233661,7 +233661,7 @@ static int sessionApplyOneOp(
     **     no (nCol+1) variable to bind to).
     */
     u8 *abPK = (pIter->bPatchset ? p->abPK : 0);
-    rc = sessionBindRow(pIter, sqlite3changeset_old, nCol, abPK, p->pDelete);
+    rc = sessionBindRow(pIter, exsqlite3changeset_old, nCol, abPK, p->pDelete);
     if( rc==SQLITE_OK && exsqlite3_bind_parameter_count(p->pDelete)>nCol ){
       rc = exsqlite3_bind_int(p->pDelete, nCol+1, (pbRetry==0 || abPK));
     }
@@ -233734,7 +233734,7 @@ static int sessionApplyOneOp(
     }
 
     if( rc==SQLITE_OK ){
-      rc = sessionBindRow(pIter, sqlite3changeset_new, nCol, 0, p->pInsert);
+      rc = sessionBindRow(pIter, exsqlite3changeset_new, nCol, 0, p->pInsert);
       if( rc!=SQLITE_OK ) return rc;
 
       exsqlite3_step(p->pInsert);
@@ -233796,7 +233796,7 @@ static int sessionApplyOneWithRetry(
       rc = exsqlite3_exec(db, "SAVEPOINT replace_op", 0, 0, 0);
       if( rc==SQLITE_OK ){
         rc = sessionBindRow(pIter,
-            sqlite3changeset_new, pApply->nCol, pApply->abPK, pApply->pDelete);
+            exsqlite3changeset_new, pApply->nCol, pApply->abPK, pApply->pDelete);
         exsqlite3_bind_int(pApply->pDelete, pApply->nCol+1, 1);
       }
       if( rc==SQLITE_OK ){
@@ -233847,11 +233847,11 @@ static int sessionRetryConstraints(
       pIter2->apValue = (exsqlite3_value**)pIter2->tblhdr.aBuf;
       if( rc==SQLITE_OK ) memset(pIter2->apValue, 0, nByte);
 
-      while( rc==SQLITE_OK && SQLITE_ROW==sqlite3changeset_next(pIter2) ){
+      while( rc==SQLITE_OK && SQLITE_ROW==exsqlite3changeset_next(pIter2) ){
         rc = sessionApplyOneWithRetry(db, pIter2, pApply, xConflict, pCtx);
       }
 
-      rc2 = sqlite3changeset_finalize(pIter2);
+      rc2 = exsqlite3changeset_finalize(pIter2);
       if( rc==SQLITE_OK ) rc = rc2;
     }
     assert( pApply->bDeferConstraints || pApply->constraints.nBuf==0 );
@@ -233869,7 +233869,7 @@ static int sessionRetryConstraints(
 
 /*
 ** Argument pIter is a changeset iterator that has been initialized, but
-** not yet passed to sqlite3changeset_next(). This function applies the
+** not yet passed to exsqlite3changeset_next(). This function applies the
 ** changeset to the main database attached to handle "db". The supplied
 ** conflict handler callback is invoked to resolve any conflicts encountered
 ** while applying the change.
@@ -233911,12 +233911,12 @@ static int sessionChangesetApply(
   if( rc==SQLITE_OK ){
     rc = exsqlite3_exec(db, "PRAGMA defer_foreign_keys = 1", 0, 0, 0);
   }
-  while( rc==SQLITE_OK && SQLITE_ROW==sqlite3changeset_next(pIter) ){
+  while( rc==SQLITE_OK && SQLITE_ROW==exsqlite3changeset_next(pIter) ){
     int nCol;
     int op;
     const char *zNew;
 
-    sqlite3changeset_op(pIter, &zNew, &nCol, &op, 0);
+    exsqlite3changeset_op(pIter, &zNew, &nCol, &op, 0);
 
     if( zTab==0 || exsqlite3_strnicmp(zNew, zTab, nTab+1) ){
       u8 *abPK;
@@ -233960,7 +233960,7 @@ static int sessionChangesetApply(
         int nMinCol = 0;
         int i;
 
-        sqlite3changeset_pk(pIter, &abPK, 0);
+        exsqlite3changeset_pk(pIter, &abPK, 0);
         rc = sessionTableInfo(0, db, "main", zNew,
             &sApply.nCol, &zTab, &sApply.azCol, 0, &sApply.abPK, &sApply.bRowid
         );
@@ -233972,20 +233972,20 @@ static int sessionChangesetApply(
         if( sApply.nCol==0 ){
           schemaMismatch = 1;
           exsqlite3_log(SQLITE_SCHEMA,
-              "sqlite3changeset_apply(): no such table: %s", zTab
+              "exsqlite3changeset_apply(): no such table: %s", zTab
           );
         }
         else if( sApply.nCol<nCol ){
           schemaMismatch = 1;
           exsqlite3_log(SQLITE_SCHEMA,
-              "sqlite3changeset_apply(): table %s has %d columns, "
+              "exsqlite3changeset_apply(): table %s has %d columns, "
               "expected %d or more",
               zTab, sApply.nCol, nCol
           );
         }
         else if( nCol<nMinCol || memcmp(sApply.abPK, abPK, nCol)!=0 ){
           schemaMismatch = 1;
-          exsqlite3_log(SQLITE_SCHEMA, "sqlite3changeset_apply(): "
+          exsqlite3_log(SQLITE_SCHEMA, "exsqlite3changeset_apply(): "
               "primary key mismatch for table %s", zTab
           );
         }
@@ -234019,9 +234019,9 @@ static int sessionChangesetApply(
 
   bPatchset = pIter->bPatchset;
   if( rc==SQLITE_OK ){
-    rc = sqlite3changeset_finalize(pIter);
+    rc = exsqlite3changeset_finalize(pIter);
   }else{
-    sqlite3changeset_finalize(pIter);
+    exsqlite3changeset_finalize(pIter);
   }
 
   if( rc==SQLITE_OK ){
@@ -234074,7 +234074,7 @@ static int sessionChangesetApply(
 ** Apply the changeset passed via pChangeset/nChangeset to the main
 ** database attached to handle "db".
 */
-SQLITE_API int sqlite3changeset_apply_v2(
+SQLITE_API int exsqlite3changeset_apply_v2(
   sqlite3 *db,                    /* Apply change to "main" db of this handle */
   int nChangeset,                 /* Size of changeset in bytes */
   void *pChangeset,               /* Changeset blob */
@@ -234120,7 +234120,7 @@ SQLITE_API int sqlite3changeset_apply_v2(
 ** attached to handle "db". Invoke the supplied conflict handler callback
 ** to resolve any conflicts encountered while applying the change.
 */
-SQLITE_API int sqlite3changeset_apply(
+SQLITE_API int exsqlite3changeset_apply(
   sqlite3 *db,                    /* Apply change to "main" db of this handle */
   int nChangeset,                 /* Size of changeset in bytes */
   void *pChangeset,               /* Changeset blob */
@@ -234135,7 +234135,7 @@ SQLITE_API int sqlite3changeset_apply(
   ),
   void *pCtx                      /* First argument passed to xConflict */
 ){
-  return sqlite3changeset_apply_v2(
+  return exsqlite3changeset_apply_v2(
       db, nChangeset, pChangeset, xFilter, xConflict, pCtx, 0, 0, 0
   );
 }
@@ -234145,7 +234145,7 @@ SQLITE_API int sqlite3changeset_apply(
 ** attached to handle "db". Invoke the supplied conflict handler callback
 ** to resolve any conflicts encountered while applying the change.
 */
-SQLITE_API int sqlite3changeset_apply_v2_strm(
+SQLITE_API int exsqlite3changeset_apply_v2_strm(
   sqlite3 *db,                    /* Apply change to "main" db of this handle */
   int (*xInput)(void *pIn, void *pData, int *pnData), /* Input function */
   void *pIn,                                          /* First arg for xInput */
@@ -234172,7 +234172,7 @@ SQLITE_API int sqlite3changeset_apply_v2_strm(
   }
   return rc;
 }
-SQLITE_API int sqlite3changeset_apply_strm(
+SQLITE_API int exsqlite3changeset_apply_strm(
   sqlite3 *db,                    /* Apply change to "main" db of this handle */
   int (*xInput)(void *pIn, void *pData, int *pnData), /* Input function */
   void *pIn,                                          /* First arg for xInput */
@@ -234187,7 +234187,7 @@ SQLITE_API int sqlite3changeset_apply_strm(
   ),
   void *pCtx                      /* First argument passed to xConflict */
 ){
-  return sqlite3changeset_apply_v2_strm(
+  return exsqlite3changeset_apply_v2_strm(
       db, xInput, pIn, xFilter, xConflict, pCtx, 0, 0, 0
   );
 }
@@ -234206,7 +234206,7 @@ struct exsqlite3_changegroup {
 
 /*
 ** This function is called to merge two changes to the same row together as
-** part of an sqlite3changeset_concat() operation. A new change object is
+** part of an exsqlite3changeset_concat() operation. A new change object is
 ** allocated and a pointer to it stored in *ppNew.
 */
 static int sessionChangeMerge(
@@ -234531,13 +234531,13 @@ static int sessionChangesetToHash(
       break;
     }
 
-    sqlite3changeset_op(pIter, &zNew, &nCol, &op, &bIndirect);
+    exsqlite3changeset_op(pIter, &zNew, &nCol, &op, &bIndirect);
     if( !pTab || exsqlite3_stricmp(zNew, pTab->zName) ){
       /* Search the list for a matching table */
       int nNew = (int)strlen(zNew);
       u8 *abPK;
 
-      sqlite3changeset_pk(pIter, &abPK, 0);
+      exsqlite3changeset_pk(pIter, &abPK, 0);
       for(pTab = pGrp->pList; pTab; pTab=pTab->pNext){
         if( 0==exsqlite3_strnicmp(pTab->zName, zNew, nNew+1) ) break;
       }
@@ -234745,11 +234745,11 @@ SQLITE_API int sqlite3changegroup_add(exsqlite3_changegroup *pGrp, int nData, vo
   exsqlite3_changeset_iter *pIter;  /* Iterator opened on pData/nData */
   int rc;                         /* Return code */
 
-  rc = sqlite3changeset_start(&pIter, nData, pData);
+  rc = exsqlite3changeset_start(&pIter, nData, pData);
   if( rc==SQLITE_OK ){
     rc = sessionChangesetToHash(pIter, pGrp, 0);
   }
-  sqlite3changeset_finalize(pIter);
+  exsqlite3changeset_finalize(pIter);
   return rc;
 }
 
@@ -234776,11 +234776,11 @@ SQLITE_API int sqlite3changegroup_add_strm(
   exsqlite3_changeset_iter *pIter;  /* Iterator opened on pData/nData */
   int rc;                         /* Return code */
 
-  rc = sqlite3changeset_start_strm(&pIter, xInput, pIn);
+  rc = exsqlite3changeset_start_strm(&pIter, xInput, pIn);
   if( rc==SQLITE_OK ){
     rc = sessionChangesetToHash(pIter, pGrp, 0);
   }
-  sqlite3changeset_finalize(pIter);
+  exsqlite3changeset_finalize(pIter);
   return rc;
 }
 
@@ -234809,7 +234809,7 @@ SQLITE_API void sqlite3changegroup_delete(exsqlite3_changegroup *pGrp){
 /*
 ** Combine two changesets together.
 */
-SQLITE_API int sqlite3changeset_concat(
+SQLITE_API int exsqlite3changeset_concat(
   int nLeft,                      /* Number of bytes in lhs input */
   void *pLeft,                    /* Lhs input changeset */
   int nRight                      /* Number of bytes in rhs input */,
@@ -234836,9 +234836,9 @@ SQLITE_API int sqlite3changeset_concat(
 }
 
 /*
-** Streaming version of sqlite3changeset_concat().
+** Streaming version of exsqlite3changeset_concat().
 */
-SQLITE_API int sqlite3changeset_concat_strm(
+SQLITE_API int exsqlite3changeset_concat_strm(
   int (*xInputA)(void *pIn, void *pData, int *pnData),
   void *pInA,
   int (*xInputB)(void *pIn, void *pData, int *pnData),
@@ -235149,11 +235149,11 @@ SQLITE_API int sqlite3rebaser_configure(
 ){
   exsqlite3_changeset_iter *pIter = 0;   /* Iterator opened on pData/nData */
   int rc;                              /* Return code */
-  rc = sqlite3changeset_start(&pIter, nRebase, (void*)pRebase);
+  rc = exsqlite3changeset_start(&pIter, nRebase, (void*)pRebase);
   if( rc==SQLITE_OK ){
     rc = sessionChangesetToHash(pIter, &p->grp, 1);
   }
-  sqlite3changeset_finalize(pIter);
+  exsqlite3changeset_finalize(pIter);
   return rc;
 }
 
@@ -235166,11 +235166,11 @@ SQLITE_API int sqlite3rebaser_rebase(
   int *pnOut, void **ppOut
 ){
   exsqlite3_changeset_iter *pIter = 0;   /* Iterator to skip through input */
-  int rc = sqlite3changeset_start(&pIter, nIn, (void*)pIn);
+  int rc = exsqlite3changeset_start(&pIter, nIn, (void*)pIn);
 
   if( rc==SQLITE_OK ){
     rc = sessionRebase(p, pIter, 0, 0, pnOut, ppOut);
-    sqlite3changeset_finalize(pIter);
+    exsqlite3changeset_finalize(pIter);
   }
 
   return rc;
@@ -235187,11 +235187,11 @@ SQLITE_API int sqlite3rebaser_rebase_strm(
   void *pOut
 ){
   exsqlite3_changeset_iter *pIter = 0;   /* Iterator to skip through input */
-  int rc = sqlite3changeset_start_strm(&pIter, xInput, pIn);
+  int rc = exsqlite3changeset_start_strm(&pIter, xInput, pIn);
 
   if( rc==SQLITE_OK ){
     rc = sessionRebase(p, pIter, xOutput, pOut, 0, 0);
-    sqlite3changeset_finalize(pIter);
+    exsqlite3changeset_finalize(pIter);
   }
 
   return rc;
@@ -235210,7 +235210,7 @@ SQLITE_API void sqlite3rebaser_delete(exsqlite3_rebaser *p){
 /*
 ** Global configuration
 */
-SQLITE_API int sqlite3session_config(int op, void *pArg){
+SQLITE_API int exsqlite3session_config(int op, void *pArg){
   int rc = SQLITE_OK;
   switch( op ){
     case SQLITE_SESSION_CONFIG_STRMSIZE: {
